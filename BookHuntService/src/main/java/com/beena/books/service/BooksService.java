@@ -1,20 +1,20 @@
 package com.beena.books.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.beena.books.dto.BookDTO;
@@ -48,8 +48,9 @@ public class BooksService {
 	@Value("${google.booksapi.url}")
 	String url;
 	
-	//@Cacheable("books")
+	@Cacheable("books")
 	public List<Book> fetchBooks(String query, int page) {
+		System.out.println("Executing method");
 		query = query.toLowerCase().trim();
 		SearchKey keyFound = searchKeyRepository.findByKey(query);
 		if(keyFound == null){
@@ -59,7 +60,7 @@ public class BooksService {
 		List<Book> books = booksRepository.findAllBySearchKeys(keyFound, sortedByTitle);
 		
 		books.forEach(b -> { System.out.println("book:" + b.getTitle());});
-		
+		//truncateTables();
 		return books;
 	}
 	
@@ -91,11 +92,18 @@ public class BooksService {
 		return bookDtos;
 	}
 	
-	@Scheduled(cron="0 10 * * * *")
-	private void evictAllcachesAtIntervals() {
+	@Scheduled(cron="0 0/5 * * * *")
+	public void evictAllcachesAtIntervals() {
 		System.out.println("clearing cache....");
 	cacheManager.getCacheNames().stream()
     .forEach(cacheName -> cacheManager.getCache(cacheName).clear());
+	}
+	
+	//@Scheduled(cron="0 15 * * * *")
+	@Transactional
+	private void truncateTables() {
+		System.out.println("Table Truncate....");
+		searchKeyRepository.truncateMyTable();
 	}
 
 }
