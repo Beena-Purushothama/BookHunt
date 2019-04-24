@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,9 +35,9 @@ public class Book {
 	
 	@ManyToMany(fetch = FetchType.LAZY,
             cascade = {
-                CascadeType.PERSIST,
-                CascadeType.MERGE
+            		CascadeType.ALL
             },
             mappedBy = "books")
+	@JsonIgnore
     private Set<SearchKey> searchKeys = new HashSet<>();
 }

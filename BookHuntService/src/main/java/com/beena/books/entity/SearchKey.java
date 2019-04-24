@@ -1,6 +1,6 @@
 package com.beena.books.entity;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -13,8 +13,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,13 +42,15 @@ public class SearchKey {
 	
 	@ManyToMany(fetch = FetchType.LAZY,
             cascade = {
-                CascadeType.PERSIST,
-                CascadeType.MERGE
+            		CascadeType.ALL
             })
     @JoinTable(name = "book_search",
             joinColumns = { @JoinColumn(name = "search_id") },
             inverseJoinColumns = { @JoinColumn(name = "book_id") })
-    private Set<Book> books = new HashSet<>();
+	@Builder.Default
+	@OrderBy("title")
+	@JsonIgnore
+    private Set<Book> books = new LinkedHashSet<>();
 	
 	public void addBooks(Book b) {
 		this.books.add(b);

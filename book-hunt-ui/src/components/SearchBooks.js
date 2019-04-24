@@ -19,8 +19,7 @@ class SearchBooks extends Component {
         return (
         <div>
         <SearchBar onSearchTextChange={this.onSearchTextChange}></SearchBar>
-        <FilteredBooks searchText={this.searchText}></FilteredBooks>
-        <Testss searchText={this.searchText}></Testss>
+        <FilteredBooks searchText={this.state.searchText}></FilteredBooks>
         </div>
         )
     }

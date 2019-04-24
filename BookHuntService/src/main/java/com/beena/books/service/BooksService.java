@@ -3,11 +3,15 @@ package com.beena.books.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,8 @@ import com.beena.books.repository.SearchKeyRepository;
 
 @Service
 public class BooksService {
+	
+	private static final int MAX_PAGE_SIZE = 10;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -39,26 +45,42 @@ public class BooksService {
 	@Autowired
 	BooksRepository booksRepository;
 	
-	@Cacheable("books")
-	public List<BookDTO> fetchBooks(String query) {
+	@Value("${google.booksapi.url}")
+	String url;
+	
+	//@Cacheable("books")
+	public List<Book> fetchBooks(String query, int page) {
+		query = query.toLowerCase().trim();
+		SearchKey keyFound = searchKeyRepository.findByKey(query);
+		if(keyFound == null){
+			keyFound = fetchBooksFromApi(query);
+		}
+		Pageable sortedByTitle =  PageRequest.of(page, MAX_PAGE_SIZE, Sort.by("title"));
+		List<Book> books = booksRepository.findAllBySearchKeys(keyFound, sortedByTitle);
 		
-	    ResponseEntity<BooksVolumes> forEntity = this.restTemplate.getForEntity( "https://www.googleapis.com/books/v1/volumes?maxResults=20&q=/"+query,
-	            BooksVolumes.class);
-	    List<Item> books = forEntity.getBody().getItems();
-	    
-	    SearchKey key = SearchKey.builder().key(query).build();
-	    books.forEach((b) -> {
-	    	Book book = Book.builder().id(b.getId()).title(b.getVolumeInfo().getTitle()).imageLinks(b.getVolumeInfo().getImageLinks().get("smallThumbnail")).build();
-	    	key.addBooks(book);
-	    });
-	    
-	    searchKeyRepository.save(key);
-	   /* Collections.sort(books, (book1, book2) -> {
-	    	return book1.getVolumeInfo().getTitle().compareToIgnoreCase(book2.getVolumeInfo().getTitle());
-	    });*/
-	   return null;
+		books.forEach(b -> { System.out.println("book:" + b.getTitle());});
+		
+		return books;
 	}
 	
+	private SearchKey fetchBooksFromApi(String query) {
+		ResponseEntity<BooksVolumes> forEntity = this.restTemplate.getForEntity( url+query,BooksVolumes.class);
+	    List<Item> items = forEntity.getBody().getItems();	
+	    return persistKeyAndBooks(items, query);
+	}
+
+	private SearchKey persistKeyAndBooks(List<Item> items, String query) {
+		SearchKey key = SearchKey.builder().key(query.toLowerCase().trim()).build();
+		/*Collections.sort(items, (item1, item2) -> {
+	    	return item1.getVolumeInfo().getTitle().compareToIgnoreCase(item2.getVolumeInfo().getTitle());
+		});*/
+	    items.forEach(b -> {
+	    	Book book = Book.builder().id(b.getId()).title(b.getVolumeInfo().getTitle()).imageLinks(b.getVolumeInfo().getImageLinks().get("smallThumbnail")).build();
+	    	key.addBooks(book);
+	    });  
+	    return searchKeyRepository.save(key);		
+	}
+
 	private List<BookDTO> convertToOrderDto(List<Book> books) {   
 		List<BookDTO> bookDtos = new ArrayList<BookDTO>();
 		books.forEach(book -> {

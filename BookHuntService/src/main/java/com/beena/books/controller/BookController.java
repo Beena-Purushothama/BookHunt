@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.beena.books.dto.BookDTO;
+import com.beena.books.entity.Book;
 import com.beena.books.service.BooksService;
 
 @RestController
@@ -21,12 +21,19 @@ public class BookController {
 	BooksService booksService;
 	
 	@GetMapping("/search")
-	public ResponseEntity<List<BookDTO>> fetchBooks(@RequestParam("q") String query){
+	public ResponseEntity<List<Book>> fetchBooks(@RequestParam("q") String query, @RequestParam("page") int page ){
 		if(query.isEmpty()) {
 			return null;
 		}
-		return new ResponseEntity<List<BookDTO>>(booksService.fetchBooks(query), HttpStatus.OK) ;
+		return new ResponseEntity<List<Book>>(booksService.fetchBooks(query,page), HttpStatus.OK) ;
 		
 	}
 
+	/*@ExceptionHandler(PaginationSortingException.class)
+	public ResponseEntity<PagingSortingErrorResponse> exceptionHandler(Exception ex) {
+	PagingSortingErrorResponse pagingSortingErrorResponse = new PagingSortingErrorResponse();
+	pagingSortingErrorResponse.setErrorCode(HttpStatus.PRECONDITION_FAILED.value());
+	pagingSortingErrorResponse.setMessage(ex.getMessage());
+	return new ResponseEntity<PagingSortingErrorResponse>(pagingSortingErrorResponse, HttpStatus.OK);
+	}*/
 }
