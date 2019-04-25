@@ -11,14 +11,20 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 
-@ControllerAdvice
+//@ControllerAdvice
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+	
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<ErrorDetails> handleAllExceptions(Exception ex, WebRequest request) {
+	  ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
+	      request.getDescription(false));
+	  return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
 	@ExceptionHandler(BooksNotFoundException.class)
 	  public final ResponseEntity<ErrorDetails> handleUserNotFoundException(BooksNotFoundException ex, WebRequest request) {
 	    ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
 	        request.getDescription(false));
-	    System.out.println("in hreerekhgh");
 	    return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
 	  }
 	
@@ -29,12 +35,7 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 	    return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
 	  }
 	
-	@ExceptionHandler(Exception.class)
-	public final ResponseEntity<ErrorDetails> handleAllExceptions(Exception ex, WebRequest request) {
-	  ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
-	      request.getDescription(false));
-	  return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+	
 
 
 }

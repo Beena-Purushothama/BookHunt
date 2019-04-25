@@ -1,6 +1,8 @@
 package com.beena.books.controller;
 
-import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,24 +25,24 @@ public class BookController {
 	BooksService booksService;
 	
 	@GetMapping("/search")
-	public ResponseEntity<List<Book>> fetchBooks(@RequestParam("q") String query, @RequestParam("page") int page ){
+	public ResponseEntity<Map<String,Book>> fetchBooks(@RequestParam("q") String query, @RequestParam("page") int page ) throws InvalidRequestParameterExeception,BooksNotFoundException {
 		
 		if(page >3)
 			throw new InvalidRequestParameterExeception("Page request param value must be between 0-3");
-		if(query.matches("[^a-z A-Z0-9]"))
+		System.out.println("q==="+query);
+		Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+		Matcher m = p.matcher(query);
+		boolean b = m.find();
+		System.out.println("matches????"+b);
+		if(b)
 			throw new InvalidRequestParameterExeception("Sprical charecters not allowed in query-"+query);
-		List<Book> filteredBooks = booksService.fetchBooks(query,page);
+		
+		Map<String,Book> filteredBooks = booksService.fetchBooks(query,page);
+		
 		if(filteredBooks == null || filteredBooks.isEmpty())
 			throw new BooksNotFoundException("Books not found for query"+query+" at page-"+page);
-		return new ResponseEntity<List<Book>>(filteredBooks, HttpStatus.OK) ;
+		
+		return new ResponseEntity<Map<String,Book>>(filteredBooks, HttpStatus.OK) ;
 		
 	}
-
-	/*@ExceptionHandler(PaginationSortingException.class)
-	public ResponseEntity<PagingSortingErrorResponse> exceptionHandler(Exception ex) {
-	PagingSortingErrorResponse pagingSortingErrorResponse = new PagingSortingErrorResponse();
-	pagingSortingErrorResponse.setErrorCode(HttpStatus.PRECONDITION_FAILED.value());
-	pagingSortingErrorResponse.setMessage(ex.getMessage());
-	return new ResponseEntity<PagingSortingErrorResponse>(pagingSortingErrorResponse, HttpStatus.OK);
-	}*/
 }

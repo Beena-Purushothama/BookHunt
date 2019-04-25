@@ -8,7 +8,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,19 +28,35 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Book {
 	@Id
+	@Column(name="book_id")
 	private String id;
 	
-    @Column(unique = true)
     @NotNull
+    @OrderBy
 	private String title;
-	//private List<String> authors; 
+	private String authors; 
 	private String imageLinks;
 	
-	@ManyToMany(fetch = FetchType.LAZY,
+	/*@ManyToMany(fetch = FetchType.LAZY,
             cascade = {
-            		CascadeType.ALL
+            		CascadeType.MERGE
             },
-            mappedBy = "books")
+            mappedBy = "books")*/
+	
+	
+	@ManyToMany(fetch = FetchType.LAZY,
+    cascade = {
+    		CascadeType.MERGE,
+    		CascadeType.PERSIST
+    })
+	@JoinTable(name = "book_search",
+    joinColumns = { @JoinColumn(name = "book_id") },
+    inverseJoinColumns = { @JoinColumn(name = "search_id") })
 	@JsonIgnore
+	@Builder.Default
     private Set<SearchKey> searchKeys = new HashSet<>();
+	
+	public void addSearchKey(SearchKey k) {
+		this.searchKeys.add(k);
+	}
 }

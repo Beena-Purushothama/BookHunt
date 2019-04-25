@@ -33,6 +33,7 @@ public class SearchKey {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="search_id")
 	private Long id;
 	
 	@NotNull
@@ -40,19 +41,19 @@ public class SearchKey {
 	@Column(unique = true)
     private String key;	
 	
-	@ManyToMany(fetch = FetchType.LAZY,
+	/*@ManyToMany(fetch = FetchType.LAZY,
             cascade = {
-            		CascadeType.ALL
+            		CascadeType.MERGE,
+            		CascadeType.PERSIST
             })
     @JoinTable(name = "book_search",
             joinColumns = { @JoinColumn(name = "search_id") },
             inverseJoinColumns = { @JoinColumn(name = "book_id") })
 	@Builder.Default
 	@OrderBy("title")
-	@JsonIgnore
     private Set<Book> books = new LinkedHashSet<>();
 	
 	public void addBooks(Book b) {
 		this.books.add(b);
-	}
+	}*/
 }

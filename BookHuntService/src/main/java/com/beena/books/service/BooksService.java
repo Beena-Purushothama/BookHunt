@@ -1,23 +1,25 @@
 package com.beena.books.service;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import com.beena.books.dto.BookDTO;
 import com.beena.books.entity.Book;
 import com.beena.books.entity.SearchKey;
 import com.beena.books.pojo.BooksVolumes;
@@ -48,48 +50,64 @@ public class BooksService {
 	@Value("${google.booksapi.url}")
 	String url;
 	
-	@Cacheable("books")
-	public List<Book> fetchBooks(String query, int page) {
+	//@Cacheable("books")
+	public Map<String,Book> fetchBooks(String query, int page) {
 		System.out.println("Executing method");
+		Map<String,Book> bookMap = new LinkedHashMap<String,Book>(); 
 		query = query.toLowerCase().trim();
 		SearchKey keyFound = searchKeyRepository.findByKey(query);
+		Pageable sortedByTitle =  PageRequest.of(page, MAX_PAGE_SIZE);
+
 		if(keyFound == null){
-			keyFound = fetchBooksFromApi(query);
+			fetchBooksFromApi(query);
+			keyFound = searchKeyRepository.findByKey(query);
 		}
-		Pageable sortedByTitle =  PageRequest.of(page, MAX_PAGE_SIZE, Sort.by("title"));
-		List<Book> books = booksRepository.findAllBySearchKeys(keyFound, sortedByTitle);
 		
-		books.forEach(b -> { System.out.println("book:" + b.getTitle());});
-		//truncateTables();
-		return books;
+		List<Book> books = booksRepository.findAllBySearchKeysOrderByTitle(keyFound,sortedByTitle);
+		
+		books.forEach(b -> { 
+			
+			bookMap.put(b.getId(), b);});
+		return bookMap;
 	}
 	
-	private SearchKey fetchBooksFromApi(String query) {
+	private void fetchBooksFromApi(String query) {
 		ResponseEntity<BooksVolumes> forEntity = this.restTemplate.getForEntity( url+query,BooksVolumes.class);
 	    List<Item> items = forEntity.getBody().getItems();	
-	    return persistKeyAndBooks(items, query);
+	    persistKeyAndBooks(items, query);
+	    return ;
 	}
 
-	private SearchKey persistKeyAndBooks(List<Item> items, String query) {
+	private void persistKeyAndBooks(List<Item> items, String query) {
 		SearchKey key = SearchKey.builder().key(query.toLowerCase().trim()).build();
-		/*Collections.sort(items, (item1, item2) -> {
-	    	return item1.getVolumeInfo().getTitle().compareToIgnoreCase(item2.getVolumeInfo().getTitle());
-		});*/
+		SearchKey savedKey = searchKeyRepository.save(key);
+		Set<Book> books = new HashSet<Book>();
 	    items.forEach(b -> {
-	    	Book book = Book.builder().id(b.getId()).title(b.getVolumeInfo().getTitle()).imageLinks(b.getVolumeInfo().getImageLinks().get("smallThumbnail")).build();
-	    	key.addBooks(book);
+	    	Optional<Book> bookOptional = booksRepository.findById(b.getId());
+	    	Book book = null;
+	    	if(bookOptional.isPresent()) {
+	    		System.out.println("found book already"+bookOptional.get().getId());
+	    		book=bookOptional.get();
+	    	}else{
+	    		HashMap<String, String> imageLinks = b.getVolumeInfo().getImageLinks();
+		    	String imageLink = (imageLinks == null)? "" :imageLinks.get("smallThumbnail");
+		    	List<String> authors =  b.getVolumeInfo().getAuthors();
+		    	String author = (authors == null )? "" :String.join(",", authors);
+		    	System.out.println("id="+b.getId()+" ; title =" +b.getVolumeInfo().getTitle());
+		    	book = Book.builder().id(b.getId())
+		    			.title(b.getVolumeInfo().getTitle())
+		    			.imageLinks(imageLink)
+		    			.authors(author)
+		    			.build();
+		    	
+	    	}
+	    	book.getSearchKeys().add(savedKey);
+	    	books.add(book);
 	    });  
-	    return searchKeyRepository.save(key);		
-	}
-
-	private List<BookDTO> convertToOrderDto(List<Book> books) {   
-		List<BookDTO> bookDtos = new ArrayList<BookDTO>();
-		books.forEach(book -> {
-		BookDTO bookDto = modelMapper.map(book, BookDTO.class);
-		bookDtos.add(bookDto);
-		});
-		System.out.println(bookDtos.size());
-		return bookDtos;
+	    
+	    booksRepository.saveAll(books);
+	    
+	   // return searchKeyRepository.save(key);		
 	}
 	
 	@Scheduled(cron="0 0/5 * * * *")
