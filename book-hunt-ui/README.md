@@ -5,7 +5,7 @@ This is a single page React-Redux application
 
 ## Installations
 
-1. Run ### 'npm install' and verify below dependencies and devDependencies from your project root directory, doing 'ls' on this directory should list package.json.
+1. Run **'npm install'** and verify below dependencies and devDependencies from your project root directory, doing 'ls' on this directory should list package.json.
     ```bash
     ""dependencies": {
     "axios": "^0.18.0",
@@ -28,7 +28,7 @@ This is a single page React-Redux application
   2. Make sure BookHuntService back-end springboot app has been deployed and running on ## http://localhost:8080 
   (Note: Please read the installation for setting up springboot app in the respective README)
   
-  3.Start the server by running  ### 'npm start'
+  3.Start the server by running  **'npm start'**
   
   ## App Functionality
   
