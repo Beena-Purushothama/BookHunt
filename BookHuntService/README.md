@@ -41,4 +41,4 @@ Before running the app on server verify below
     
 ### SPRING REPOSITORY
     * This layer interacts with the H2 database to create, update, paginate, truncate table data with respect to entity objects.
-    * There is a mant-to-many relationship between books and search_key
+    * There is a many-to-many relationship between books and search_key
