@@ -10,6 +10,7 @@ BookHunt App has two parts to it as mentioned below. This provides flexibility, 
 1. book-hunt-ui : This project builds the front-end of the app.
 2. BookHuntService : This back-end project exposes the Rest API's needed to support the front-end.
 
+Each of these projects contain specific README.md files please refem them for installation and set up.
 NOTE : Make sure to have the back-end application up and running on http://localhost:8080 before starting front-end
 
 # book-hunt-ui - The FrontEnd
