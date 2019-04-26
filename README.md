@@ -49,10 +49,8 @@ Key Benefits include:
 * In-memory H2 database : It make sit easy during development phase
 * Embedded Server : like Tomcat, Jetty etc. to develop and test our web applications very easily.
 
-
-
-
-
+## Book Search Home Page View
+![](BookSearchHome.png)
 
 
 
