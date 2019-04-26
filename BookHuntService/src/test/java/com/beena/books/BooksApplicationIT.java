@@ -44,32 +44,6 @@ public class BooksApplicationIT {
 		assertEquals(true, actual);
 		assertNotNull(bookMap);
 	}
-	
-	@Test
-	public void fetchBooksWithInvalidPage() {
-		thrown.expect(Exception.class);
-        
-		ResponseEntity<Map<String,Book>> response = restTemplate.exchange(
-				createURLWithPort("/books/search?q=flower&page=6"),
-				  HttpMethod.GET,
-				  null,
-				  new ParameterizedTypeReference<Map<String,Book>>(){});
-		
-		
-	}
-	
-	@Test
-	public void fetchBooksWithInvalidQuery() {
-		thrown.expect(Exception.class);
-        
-		ResponseEntity<Map<String,Book>> response = restTemplate.exchange(
-				createURLWithPort("/books/search?q=flow###&page=3"),
-				  HttpMethod.GET,
-				  null,
-				  new ParameterizedTypeReference<Map<String,Book>>(){});
-		
-		
-	}
 
 	private String createURLWithPort(String uri) {
 		return "http://localhost:" + port + uri;

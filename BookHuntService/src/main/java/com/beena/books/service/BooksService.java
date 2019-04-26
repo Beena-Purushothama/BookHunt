@@ -37,9 +37,6 @@ public class BooksService {
 	private RestTemplate restTemplate;
 	
 	@Autowired
-	private ModelMapper modelMapper;
-	
-	@Autowired
 	CacheManager cacheManager;
 	
 	@Autowired
@@ -51,24 +48,21 @@ public class BooksService {
 	@Value("${google.booksapi.url}")
 	String url;
 	
+	
 	@Cacheable("books")
 	public Map<String,Book> fetchBooks(String query, int page) {
-		System.out.println("Executing method");
 		Map<String,Book> bookMap = new LinkedHashMap<String,Book>(); 
 		query = query.toLowerCase().trim();
 		SearchKey keyFound = searchKeyRepository.findByKey(query);
-		Pageable sortedByTitle =  PageRequest.of(page, MAX_PAGE_SIZE);
+		Pageable pageable =  PageRequest.of(page, MAX_PAGE_SIZE);
 
 		if(keyFound == null){
 			fetchBooksFromApi(query);
 			keyFound = searchKeyRepository.findByKey(query);
 		}
 		
-		List<Book> books = booksRepository.findAllBySearchKeysOrderByTitle(keyFound,sortedByTitle);
-		System.out.println("books-"+books.size());
-		books.forEach(b -> { 
-			
-			bookMap.put(b.getId(), b);});
+		List<Book> books = booksRepository.findAllBySearchKeysOrderByTitle(keyFound,pageable);
+		books.forEach(b -> {bookMap.put(b.getId(), b);});
 		
 		return bookMap;
 	}
@@ -77,7 +71,6 @@ public class BooksService {
 		ResponseEntity<BooksVolumes> forEntity = this.restTemplate.getForEntity( url+query,BooksVolumes.class);
 	    List<Item> items = forEntity.getBody().getItems();	
 	    persistKeyAndBooks(items, query);
-	    return ;
 	}
 
 	private void persistKeyAndBooks(List<Item> items, String query) {
@@ -108,8 +101,6 @@ public class BooksService {
 	    });  
 	    
 	    booksRepository.saveAll(books);
-	    
-	   // return searchKeyRepository.save(key);		
 	}
 	
 	@Scheduled(cron="0 0/5 * * * *")

@@ -13,11 +13,7 @@ class SearchBar extends Component {
     this.debounceHandleChange(searchText);
   }
 
-  handlePagination = (e) => {
-    e.preventDefault();
-    const page = e.target.getAttribute("value");
-    this.props.onPagination(page);
-  }
+ 
 
   render() {
     return (
@@ -25,14 +21,6 @@ class SearchBar extends Component {
       <div className="search-books-bar">
           <input className="col" type="text" maxLength="255" name="searchText"  placeholder="Search by title" onChange={this.handleChange}/>
       </div>
-      <nav aria-label="Page navigation ">
-            <ul className="pagination ">
-              <li className="page-item"><button className="page-link" value="0" onClick={this.handlePagination} >1</button></li>
-              <li className="page-item"><button className="page-link" value="1" onClick={this.handlePagination} >2</button></li>
-              <li className="page-item"><button className="page-link" value="2" onClick={this.handlePagination} >3</button></li>
-              <li className="page-item"><button className="page-link" value="3" onClick={this.handlePagination} >4</button></li>
-            </ul>
-          </nav>
       </div>
     )
   }

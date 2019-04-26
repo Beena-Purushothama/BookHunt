@@ -2,18 +2,30 @@ import React, { Component } from 'react';
 import { clearFilteredBooks, retrieveFilteredBooks } from "../actions/books";
 import {connect} from "react-redux";
 import Book from "./Book";
+import Pagination from "./Pagination";
+
 
 class FilteredBooks extends Component {
+  state ={
+    page : 0
+  }
+
+  onPagination = (value) => {
+    console.log("page :",value);
+    this.setState({page:value});
+  }
+
   componentDidMount =() => {
     console.log("componentDidMount :",this.props.searchText);
 
   }
-  componentDidUpdate =(prevProps) => {
 
-      const {searchText,page,dispatch} = this.props;
+  componentDidUpdate =(prevProps, prevState) => {
+      const {searchText,dispatch} = this.props;
+      const {page} = this.state;
       console.log("componentDidUpdate :",searchText);
 
-      if(prevProps.searchText !== searchText || prevProps.page !== page) {
+      if(prevProps.searchText !== searchText || prevState.page !== page) {
         if(searchText === ''){
             //clear out filtered books from redux store
             dispatch(clearFilteredBooks());
@@ -23,14 +35,15 @@ class FilteredBooks extends Component {
         }
       }
   }
+
   render() {
     const {books,errors} = this.props;
     return (
-      <div className="container">
+      <div className="container main-body">
       {(errors) && 
        <div className=" invalid-feedback ">{errors} </div>
       }
-        <ul className="row book-list">
+      <ul className="row book-list">
             { //Display book
               (typeof books !== undefined) && (books.length > 0) &&
               (books.map((id) => { 
@@ -41,8 +54,8 @@ class FilteredBooks extends Component {
                       )
              }))
             }
-            
         </ul>
+        {(typeof books !== undefined) && (books.length > 0) &&<Pagination onPagination={this.onPagination}></Pagination>}
       </div>
     )
   }

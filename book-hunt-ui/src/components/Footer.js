@@ -27,7 +27,7 @@ export default function Footer() {
         <div className="col ">
         <ul> 
         <li> 
-            <a href="#" title="Spanish Site" rel="noopener" hreflang="es"> Español </a> 
+            <a href="#" title="Spanish Site" rel="noopener" hrefLang="es"> Español </a> 
             <a href="#" title="Sitemap"> Sitemap </a>
             <a href="#" title="Online Privacy Statement"> Online Privacy </a> 
         </li>

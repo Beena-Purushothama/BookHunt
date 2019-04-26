@@ -7,8 +7,8 @@ class Book extends Component {
     const {book} = this.props;
     return (
       <div className="card-body text-center">
-        <div className="book-cover" style={{ width: 128, height: 193 }}>
-        <Image src={book.imageLinks} />
+        <div className="book-cover" >
+        <Image src={book.imageLinks === "" ? require("../utils/defaultImage.jpg") :book.imageLinks} />
         </div>
         <div className="book-title">{book.title}</div>
         <div className="book-authors">{book.authors}</div>
