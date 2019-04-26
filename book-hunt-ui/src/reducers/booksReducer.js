@@ -5,9 +5,9 @@ const initialState = {}
 export default function(state=initialState, action){
     switch(action.type) {
         case RECEIVE_FILTERED_BOOKS : 
-            return {...state, ...action.books}
+            return action.books
         case CLEAR_FILTERED_BOOKS : 
-            return {initialState};
+            return initialState;
         default : return state;
     }
 

@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import com.beena.books.service.BooksService;
 
 @RestController
 @RequestMapping("/books")
+@CrossOrigin
 public class BookController {
 	
 	@Autowired
@@ -35,7 +37,7 @@ public class BookController {
 		boolean b = m.find();
 		System.out.println("matches????"+b);
 		if(b)
-			throw new InvalidRequestParameterExeception("Sprical charecters not allowed in query-"+query);
+			throw new InvalidRequestParameterExeception("Special charecters not allowed in query-"+query);
 		
 		Map<String,Book> filteredBooks = booksService.fetchBooks(query,page);
 		

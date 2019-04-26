@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,7 @@ public class BooksService {
 	@Value("${google.booksapi.url}")
 	String url;
 	
-	//@Cacheable("books")
+	@Cacheable("books")
 	public Map<String,Book> fetchBooks(String query, int page) {
 		System.out.println("Executing method");
 		Map<String,Book> bookMap = new LinkedHashMap<String,Book>(); 
@@ -64,10 +65,11 @@ public class BooksService {
 		}
 		
 		List<Book> books = booksRepository.findAllBySearchKeysOrderByTitle(keyFound,sortedByTitle);
-		
+		System.out.println("books-"+books.size());
 		books.forEach(b -> { 
 			
 			bookMap.put(b.getId(), b);});
+		
 		return bookMap;
 	}
 	
@@ -117,11 +119,10 @@ public class BooksService {
     .forEach(cacheName -> cacheManager.getCache(cacheName).clear());
 	}
 	
-	//@Scheduled(cron="0 15 * * * *")
-	@Transactional
-	private void truncateTables() {
+	@Scheduled(cron="0 0/6 * * * *")
+	public void truncateTables() {
 		System.out.println("Table Truncate....");
-		searchKeyRepository.truncateMyTable();
+		booksRepository.truncateMyTable();
 	}
 
 }

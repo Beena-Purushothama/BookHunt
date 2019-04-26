@@ -5,12 +5,14 @@ export const clearFilteredBooks = () => ({
     type : CLEAR_FILTERED_BOOKS
 })
 
-export const retrieveFilteredBooks = (searchText) =>  async dispatch => {
+export const retrieveFilteredBooks = (searchText,page) =>  async dispatch => {
     
-    return getBooks(searchText).then(res =>{
+    return getBooks(searchText,page).then(res =>{
+        dispatch(clearErrMsg());
         dispatch(updateFilteredBooks(res.data));
     }).catch(error => {
-        dispatch(addError(error.response));
+        let err = error.response.data.message !== undefined ? error.response.data.message : "An error occured"
+        dispatch(addError(err));
     })
 
 }

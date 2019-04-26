@@ -10,35 +10,36 @@ class FilteredBooks extends Component {
   }
   componentDidUpdate =(prevProps) => {
 
-      const {searchText,dispatch} = this.props;
+      const {searchText,page,dispatch} = this.props;
       console.log("componentDidUpdate :",searchText);
 
-      if(prevProps.searchText !== searchText) {
+      if(prevProps.searchText !== searchText || prevProps.page !== page) {
         if(searchText === ''){
-            //to-do: clear out filtered books from redux store
+            //clear out filtered books from redux store
             dispatch(clearFilteredBooks());
         }else{
-            //to-do: dispatch action to thunk and finally update reducer
-            dispatch(retrieveFilteredBooks(searchText))
+            //dispatch action to thunk and finally update reducer
+            dispatch(retrieveFilteredBooks(searchText, page))
         }
       }
   }
   render() {
-    const {books} = this.props;
-    console.log("render :",this.props.searchText);
-
+    const {books,errors} = this.props;
     return (
-      <div>
-      In here
-        <ul>
-            { //to-do for every books received display a book
-             // (typeof books !== undefined) && (books.length > 0) &&
-             // (books.map((book) => { 
-              //  return <li key={book.id}>
-              //    <Book id={book.id}/>
-               // </li>
-
-            //  }))
+      <div className="container">
+      {(errors) && 
+       <div className=" invalid-feedback ">{errors} </div>
+      }
+        <ul className="row book-list">
+            { //Display book
+              (typeof books !== undefined) && (books.length > 0) &&
+              (books.map((id) => { 
+                console.log(id);
+                return (<li className="col" key={id}>
+                        <Book id={id}/>
+                        </li>
+                      )
+             }))
             }
             
         </ul>
@@ -47,11 +48,13 @@ class FilteredBooks extends Component {
   }
 }
 
-const mapStateToProps = ({},{searchText}) => {
-  console.log("searchText---",searchText)
+const mapStateToProps = ({books,errors},{searchText,page}) => {
+  const booksKey = Object.keys(books);
   return ({
-
-  searchText
+    books : booksKey,
+  searchText,
+  page,
+  errors
 })}
 
 export default connect(mapStateToProps)(FilteredBooks);

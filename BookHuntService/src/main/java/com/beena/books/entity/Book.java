@@ -14,6 +14,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
@@ -33,6 +36,7 @@ public class Book {
 	
     @NotNull
     @OrderBy
+    @Column(length=512)
 	private String title;
 	private String authors; 
 	private String imageLinks;
@@ -47,7 +51,8 @@ public class Book {
 	@ManyToMany(fetch = FetchType.LAZY,
     cascade = {
     		CascadeType.MERGE,
-    		CascadeType.PERSIST
+    		CascadeType.PERSIST,
+    		CascadeType.REMOVE
     })
 	@JoinTable(name = "book_search",
     joinColumns = { @JoinColumn(name = "book_id") },

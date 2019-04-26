@@ -1,13 +1,26 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux';
+import Image from "react-bootstrap/Image";
 
-export default class Book extends Component {
+class Book extends Component {
   render() {
+    const {book} = this.props;
     return (
-      <div>
-        <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url()` }}></div>
-        <div className="book-title">{}</div>
-        <div className="book-authors">{}</div>
+      <div className="card-body text-center">
+        <div className="book-cover" style={{ width: 128, height: 193 }}>
+        <Image src={book.imageLinks} />
+        </div>
+        <div className="book-title">{book.title}</div>
+        <div className="book-authors">{book.authors}</div>
       </div>
     )
   }
 }
+
+const mapStateToProps = ({books},{id}) =>{
+  const book = books[id];
+  return {
+    book
+  }
+}
+export default connect(mapStateToProps)(Book);
