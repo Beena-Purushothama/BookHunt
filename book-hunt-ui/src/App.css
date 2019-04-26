@@ -75,7 +75,7 @@
 }
 
 .main-body{
-  min-height:calc(100vh - 310px);
+  min-height:calc(100vh - 245px);
 }
 /* STYLES SPECIFIC TO FOOTER  */
 .footer {
