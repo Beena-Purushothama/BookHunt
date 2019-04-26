@@ -27,18 +27,9 @@ public class BookController {
 	BooksService booksService;
 	
 	@GetMapping("/search")
-	public ResponseEntity<Map<String,Book>> fetchBooks(@RequestParam("q") String query, @RequestParam("page") int page ) throws InvalidRequestParameterExeception,BooksNotFoundException {
+	public ResponseEntity<Map<String,Book>> fetchBooks(@RequestParam("q") String query, @RequestParam("page") int page )  {
 		
-		if(page >3)
-			throw new InvalidRequestParameterExeception("Page request param value must be between 0-3");
-		System.out.println("q==="+query);
-		Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
-		Matcher m = p.matcher(query);
-		boolean b = m.find();
-		System.out.println("matches????"+b);
-		if(b)
-			throw new InvalidRequestParameterExeception("Special charecters not allowed in query-"+query);
-		
+		validateInput(query, page);
 		Map<String,Book> filteredBooks = booksService.fetchBooks(query,page);
 		
 		if(filteredBooks == null || filteredBooks.isEmpty())
@@ -46,5 +37,16 @@ public class BookController {
 		
 		return new ResponseEntity<Map<String,Book>>(filteredBooks, HttpStatus.OK) ;
 		
+	}
+
+	private void validateInput(String query, int page) {
+		if(page >3)
+			throw new InvalidRequestParameterExeception("Page request param value must be between 0-3");
+		
+		Pattern p = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+		Matcher m = p.matcher(query);
+		boolean b = m.find();
+		if(b)
+			throw new InvalidRequestParameterExeception("Special charecters not allowed in query-"+query);
 	}
 }

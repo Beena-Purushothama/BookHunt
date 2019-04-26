@@ -40,20 +40,4 @@ public class SearchKey {
     @Size(max = 100)
 	@Column(unique = true)
     private String key;	
-	
-	/*@ManyToMany(fetch = FetchType.LAZY,
-            cascade = {
-            		CascadeType.MERGE,
-            		CascadeType.PERSIST
-            })
-    @JoinTable(name = "book_search",
-            joinColumns = { @JoinColumn(name = "search_id") },
-            inverseJoinColumns = { @JoinColumn(name = "book_id") })
-	@Builder.Default
-	@OrderBy("title")
-    private Set<Book> books = new LinkedHashSet<>();
-	
-	public void addBooks(Book b) {
-		this.books.add(b);
-	}*/
 }

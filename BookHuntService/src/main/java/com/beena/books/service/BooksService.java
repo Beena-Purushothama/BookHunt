@@ -55,7 +55,8 @@ public class BooksService {
 		query = query.toLowerCase().trim();
 		SearchKey keyFound = searchKeyRepository.findByKey(query);
 		Pageable pageable =  PageRequest.of(page, MAX_PAGE_SIZE);
-
+		
+		//If the title by which the user searches is not present in DB then fetch it from Google books api and insert in DB
 		if(keyFound == null){
 			fetchBooksFromApi(query);
 			keyFound = searchKeyRepository.findByKey(query);
@@ -81,14 +82,12 @@ public class BooksService {
 	    	Optional<Book> bookOptional = booksRepository.findById(b.getId());
 	    	Book book = null;
 	    	if(bookOptional.isPresent()) {
-	    		System.out.println("found book already"+bookOptional.get().getId());
 	    		book=bookOptional.get();
 	    	}else{
 	    		HashMap<String, String> imageLinks = b.getVolumeInfo().getImageLinks();
 		    	String imageLink = (imageLinks == null)? "" :imageLinks.get("smallThumbnail");
 		    	List<String> authors =  b.getVolumeInfo().getAuthors();
 		    	String author = (authors == null )? "" :String.join(",", authors);
-		    	System.out.println("id="+b.getId()+" ; title =" +b.getVolumeInfo().getTitle());
 		    	book = Book.builder().id(b.getId())
 		    			.title(b.getVolumeInfo().getTitle())
 		    			.imageLinks(imageLink)
@@ -103,13 +102,15 @@ public class BooksService {
 	    booksRepository.saveAll(books);
 	}
 	
+	//Spring schedulers to clear in memory cache
 	@Scheduled(cron="0 0/5 * * * *")
 	public void evictAllcachesAtIntervals() {
 		System.out.println("clearing cache....");
-	cacheManager.getCacheNames().stream()
-    .forEach(cacheName -> cacheManager.getCache(cacheName).clear());
+		cacheManager.getCacheNames().stream()
+	    .forEach(cacheName -> cacheManager.getCache(cacheName).clear());
 	}
 	
+	//Spring schedulers to truncate Book, Search_Key, Book_search table
 	@Scheduled(cron="0 0/6 * * * *")
 	public void truncateTables() {
 		System.out.println("Table Truncate....");

@@ -8,7 +8,7 @@ class Book extends Component {
     return (
       <div className="card-body text-center">
         <div className="book-cover" >
-        <Image src={book.imageLinks === "" ? require("../utils/defaultImage.jpg") :book.imageLinks} />
+          <Image src={book.imageLinks === "" ? require("../utils/defaultImage.jpg") :book.imageLinks} />
         </div>
         <div className="book-title">{book.title}</div>
         <div className="book-authors">{book.authors}</div>

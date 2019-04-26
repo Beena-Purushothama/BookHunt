@@ -40,14 +40,7 @@ public class Book {
 	private String title;
 	private String authors; 
 	private String imageLinks;
-	
-	/*@ManyToMany(fetch = FetchType.LAZY,
-            cascade = {
-            		CascadeType.MERGE
-            },
-            mappedBy = "books")*/
-	
-	
+
 	@ManyToMany(fetch = FetchType.LAZY,
     cascade = {
     		CascadeType.MERGE,
