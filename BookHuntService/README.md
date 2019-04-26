@@ -12,7 +12,7 @@ Before running the app on server verify below
 
 ##To run the application (You will need to run it from the project folder which contains the pom.xml file)
 1. mvn package -Dmaven.test.skip=true
-2. java -jar target/ad-placement-0.0.1-SNAPSHOT.jar
+2. java -jar target/BookHuntService-0.0.1-SNAPSHOT.jar
 
 ##To run test cases
  1. mvn clean test
