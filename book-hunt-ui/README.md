@@ -37,12 +37,7 @@ This is a single page React-Redux application
   The App displays a max of 40 books.
   To view the next bacth of books for a search key click on the numbers below the search bar.
   To clear the books searched just clear the search key.
-  
-  
-  
-  
-
-```
+ 
 
 
   
